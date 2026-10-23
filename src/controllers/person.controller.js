@@ -1,8 +1,14 @@
+import { matchedData } from "express-validator";
 import { PersonModel } from "../models/person.model.js";
 
+// Crear Persona
 export const createPerson = async (req, res) => {
   try {
-    const newPerson = await PersonModel.create(req.body);
+    // Usamos matchedData para extraer solo los campos limpios y validados
+    const data = matchedData(req);
+
+    const newPerson = await PersonModel.create(data);
+
     return res.status(201).json({
       msg: "Persona creada correctamente",
       data: newPerson,
@@ -13,6 +19,7 @@ export const createPerson = async (req, res) => {
   }
 };
 
+// Obtener todas las Personas
 export const getAllPersons = async (req, res) => {
   try {
     const persons = await PersonModel.find();
@@ -23,6 +30,7 @@ export const getAllPersons = async (req, res) => {
   }
 };
 
+// Obtener Persona por ID
 export const getPersonById = async (req, res) => {
   try {
     const { id } = req.params;
@@ -39,10 +47,13 @@ export const getPersonById = async (req, res) => {
   }
 };
 
+// Actualizar Persona
 export const updatePerson = async (req, res) => {
   try {
     const { id } = req.params;
-    const updatedPerson = await PersonModel.findByIdAndUpdate(id, req.body, {
+    const data = matchedData(req); // Solo los campos enviados y validados
+
+    const updatedPerson = await PersonModel.findByIdAndUpdate(id, data, {
       new: true,
       runValidators: true,
     });
@@ -61,6 +72,7 @@ export const updatePerson = async (req, res) => {
   }
 };
 
+// Eliminar Persona
 export const deletePerson = async (req, res) => {
   try {
     const { id } = req.params;

@@ -1,9 +1,13 @@
+import { matchedData } from "express-validator";
 import { ClientModel } from "../models/client.model.js";
 import { ProductModel } from "../models/product.model.js";
 
 export const createClient = async (req, res) => {
   try {
-    const newClient = await ClientModel.create(req.body);
+    // Usamos matchedData para extraer solo los campos validados
+    const data = matchedData(req);
+    const newClient = await ClientModel.create(data);
+
     return res.status(201).json({
       msg: "Cliente creado correctamente",
       data: newClient,
@@ -44,7 +48,9 @@ export const getClientById = async (req, res) => {
 export const updateClient = async (req, res) => {
   try {
     const { id } = req.params;
-    const updatedClient = await ClientModel.findByIdAndUpdate(id, req.body, {
+    const data = matchedData(req); // Solo los campos enviados y validados
+
+    const updatedClient = await ClientModel.findByIdAndUpdate(id, data, {
       new: true,
       runValidators: true,
     });
@@ -84,7 +90,6 @@ export const deleteClient = async (req, res) => {
 
 // ==========================================================
 // ENDPOINT ESPECIAL N:M: Agregar producto favorito al cliente
-// Cumple con el punto 3: Agregar un nuevo vínculo en una relación N:M
 // ==========================================================
 export const addFavoriteProduct = async (req, res) => {
   try {
@@ -102,13 +107,13 @@ export const addFavoriteProduct = async (req, res) => {
     const updatedClient = await ClientModel.findByIdAndUpdate(
       clientId,
       { $addToSet: { favoriteProducts: productId } },
-      { new: true }
+      { new: true },
     ).populate("favoriteProducts");
 
     await ProductModel.findByIdAndUpdate(
       productId,
       { $addToSet: { wishlistedBy: clientId } },
-      { new: true }
+      { new: true },
     );
 
     return res.status(200).json({

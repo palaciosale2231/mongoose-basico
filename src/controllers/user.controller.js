@@ -1,17 +1,13 @@
+import { matchedData } from "express-validator";
 import { UserModel } from "../models/user.model.js";
 
 // Crear Usuario
 export const createUser = async (req, res) => {
   try {
-    const { username, email, password, addresses, personDetails } = req.body;
+    // Usamos matchedData para obtener solo los campos limpios y validados
+    const data = matchedData(req);
 
-    const newUser = await UserModel.create({
-      username,
-      email,
-      password,
-      addresses,
-      personDetails, // ID de la persona (Relación 1:1)
-    });
+    const newUser = await UserModel.create(data);
 
     return res.status(201).json({
       msg: "Usuario creado correctamente",
@@ -23,10 +19,12 @@ export const createUser = async (req, res) => {
   }
 };
 
-// Obtener todos los Usuarios (con populate para traer los datos de Person)
+// Obtener todos los Usuarios (Corregido a "personDetails")
 export const getAllUsers = async (req, res) => {
   try {
-    const users = await UserModel.find().populate("person");
+    // Nota: Si ya tienes un middleware pre(/^find/) en tu modelo que hace populate,
+    // puedes quitar .populate("personDetails") de aquí para no duplicarlo, pero si no, va así:
+    const users = await UserModel.find().populate("personDetails");
 
     return res.status(200).json({ data: users });
   } catch (error) {
@@ -35,11 +33,11 @@ export const getAllUsers = async (req, res) => {
   }
 };
 
-// Obtener Usuario por ID
+// Obtener Usuario por ID (Corregido a "personDetails")
 export const getUserById = async (req, res) => {
   try {
     const { id } = req.params;
-    const user = await UserModel.findById(id).populate("person");
+    const user = await UserModel.findById(id).populate("personDetails");
 
     if (!user) {
       return res.status(404).json({ msg: "Usuario no encontrado" });
@@ -56,7 +54,9 @@ export const getUserById = async (req, res) => {
 export const updateUser = async (req, res) => {
   try {
     const { id } = req.params;
-    const updatedUser = await UserModel.findByIdAndUpdate(id, req.body, {
+    const data = matchedData(req); // Solo los datos validados y enviados
+
+    const updatedUser = await UserModel.findByIdAndUpdate(id, data, {
       new: true,
       runValidators: true,
     });

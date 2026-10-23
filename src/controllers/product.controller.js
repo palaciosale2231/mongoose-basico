@@ -1,8 +1,14 @@
+import { matchedData } from "express-validator";
 import { ProductModel } from "../models/product.model.js";
 
+// Crear Producto
 export const createProduct = async (req, res) => {
   try {
-    const newProduct = await ProductModel.create(req.body);
+    // Usamos matchedData para extraer solo los campos limpios y validados
+    const data = matchedData(req);
+
+    const newProduct = await ProductModel.create(data);
+
     return res.status(201).json({
       msg: "Producto creado correctamente",
       data: newProduct,
@@ -13,6 +19,7 @@ export const createProduct = async (req, res) => {
   }
 };
 
+// Obtener todos los Productos
 export const getAllProducts = async (req, res) => {
   try {
     // Populate de 1:N (createdBy) y N:M (wishlistedBy)
@@ -27,6 +34,7 @@ export const getAllProducts = async (req, res) => {
   }
 };
 
+// Obtener Producto por ID
 export const getProductById = async (req, res) => {
   try {
     const { id } = req.params;
@@ -45,10 +53,13 @@ export const getProductById = async (req, res) => {
   }
 };
 
+// Actualizar Producto
 export const updateProduct = async (req, res) => {
   try {
     const { id } = req.params;
-    const updatedProduct = await ProductModel.findByIdAndUpdate(id, req.body, {
+    const data = matchedData(req); // Solo los campos enviados y validados
+
+    const updatedProduct = await ProductModel.findByIdAndUpdate(id, data, {
       new: true,
       runValidators: true,
     });
@@ -67,6 +78,7 @@ export const updateProduct = async (req, res) => {
   }
 };
 
+// Eliminar Producto
 export const deleteProduct = async (req, res) => {
   try {
     const { id } = req.params;

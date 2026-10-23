@@ -16,7 +16,7 @@ const userSchema = new Schema(
       type: String,
       required: true,
     },
-    // 1. PROPIEDAD EMBEBIDA (Subdocumentos)
+    //  propiedad embebida
     addresses: [
       {
         _id: false,
@@ -25,14 +25,14 @@ const userSchema = new Schema(
         country: { type: String, required: true },
       },
     ],
-    // 2. RELACIÓN 1:1 (Un usuario tiene un único perfil/persona asociado)
+    //  relacion 1 a 1 (Un usuario tiene una única persona asociado)
     personDetails: {
       type: Types.ObjectId,
       ref: "Person",
       required: true,
     },
   },
-  { versionKey: false }
+  { versionKey: false },
 );
 
 export const UserModel = model("User", userSchema);
