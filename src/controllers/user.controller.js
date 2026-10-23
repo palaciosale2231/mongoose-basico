@@ -3,14 +3,14 @@ import { UserModel } from "../models/user.model.js";
 // Crear Usuario
 export const createUser = async (req, res) => {
   try {
-    const { username, email, password, addresses, person } = req.body;
+    const { username, email, password, addresses, personDetails } = req.body;
 
     const newUser = await UserModel.create({
       username,
       email,
       password,
       addresses,
-      person, // ID de la persona (Relación 1:1)
+      personDetails, // ID de la persona (Relación 1:1)
     });
 
     return res.status(201).json({
